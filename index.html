@@ -1,0 +1,335 @@
+<html>
+<head>
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<script src="includes/jquery-3.3.1.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css"  rel="stylesheet">
+<link href="style.css"  rel="stylesheet">
+    <div class="container">
+	       <div class="modal fade" id="myModal" role="dialog">
+			<div class="modal-dialog">
+    
+			<!-- Modal content-->
+			<div class="modal-content">
+			
+			<div class="modal-header">
+				<h4 class="modal-title">Autenticazione a 2 fattori</h4>
+			</div>
+			
+			<div class="modal-body">
+			
+			 <center>
+			  <p class="text-center">
+				
+				   <figure>
+					<img class="img-thumbnail" id="qrcode"></img>
+					<figcaption id="commento"></figcaption>
+				   <figure>
+			  </p>
+				<form id="2fa" class="form-inline">	 
+				 <div class="form-group">
+					<input type="text" class="form-control" style="margin-bottom : initial;" id="2facode" name="2facode" placeholder="Codice" required>
+				 </div> 
+				 <button type="submit" class="btn btn-primary">Submit</button>	 
+				 <label style="padding-left:2em; color:red;" id="2falabel">Errore, riprova!</label>
+				</form>				
+			 </center>
+			 
+			</div>
+			
+			</div>
+      
+			</div>
+		   </div>  
+
+      <div class="row">
+
+        <div class="col-md-4"></div>
+        <div class="col-md-4">
+        
+
+
+       <div class="flip">
+        <div class="card"> 
+          <div class="face front"> 
+
+            <div class="panel panel-default">
+			 
+              <form id="login" class="form-horizontal">
+                
+                <br>
+
+                <h1 class="text-center">I.I.S.S FERMI - LECCE(LE)</h1>
+				
+				<br>
+				
+				<div id="loginstatus"  class="alert alert-danger" role="alert">
+				</div>
+				
+                <br>
+                
+                <input class="form-control" name="username" placeholder="Username" required/>
+                <input class="form-control" type="password" name="password" placeholder="Password" required/>
+                <!--<p class="text-right"><a href="">Forgot Password</a></p>-->
+                <button class="btn btn-primary btn-block">LOG IN</button>
+
+                <p class="text-center">
+                 <strong><a href="#" class="fliper-btn">Non sei registrato?</a></strong>
+                </p>
+              </form>
+
+            </div>
+
+
+          </div> 
+          <div class="face back"> 
+            
+
+              <div class="panel panel-default">
+
+              <form id="register" class="form-horizontal">
+                
+                <br>
+
+                <h1 class="text-center">I.I.S.S FERMI - LECCE(LE)</h1>
+				
+				<br>
+				
+				<div id="registerstatus"  class="alert alert-danger" role="alert">
+				</div>
+				
+                <br>
+                <label>Registrazione</label>
+                <input class="form-control" pattern="^[a-zA-Z][a-zA-Z0-9-_\.]{1,5000}" name="username" placeholder="Username" required/>
+                <input class="form-control" name="email" type="email" placeholder="Email" required/>
+                <input class="form-control" name="passwd" type="password" id="psw" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" placeholder="Password" required/>
+                <input class="form-control" type="password" id="pswcheck" placeholder="Confirm Password" required/>
+                <div id="message">
+					<h3>La password deve avere:</h3>
+					<p id="letter" class="invalid">Una lettera <b>minuscola</b></p>
+					<p id="capital" class="invalid">Una lettera <b>maiuscola</b></p>
+					<p id="number" class="invalid">Un <b>numero</b></p>
+					<p id="length" class="invalid">Almeno <b>8 caratteri</b></p>
+				</div>
+				<button class="btn btn-primary btn-block">REGISTRATI</button>
+
+
+                <p class="text-center">
+                  <a href="#" class="fliper-btn">Hai gia' un account?</a>
+                </p>
+                
+              </form>
+
+            </div>
+
+
+
+
+          </div>
+        </div>   
+      </div>
+
+
+
+
+        </div>
+        <div class="col-md-4"></div>
+
+      </div>
+
+    </div><!-- /.container -->
+<script>
+$('.fliper-btn').click(function(){
+    $('.flip').find('.card').toggleClass('flipped');
+	$('#loginstatus').hide();
+	$('#registerstatus').hide();
+	document.getElementById("login").reset();
+	document.getElementById("register").reset();
+});
+
+$('#registerstatus').hide();
+$("#loginstatus").hide();
+$("#2falabel").hide();
+
+$("#register").submit(function(e) {
+
+    var url = "register.php";
+	var contenuto = "???";
+	
+    if(length.classList.contains("valid") && number.classList.contains("valid") && capital.classList.contains("valid") && letter.classList.contains("valid") ){
+	 if($('#psw').val() === $('#pswcheck').val()){
+		$("#registerstatus").attr('class', 'alert alert-success');
+		contenuto = '<strong>Successo!</strong> Ora sei registrato e puoi accedere. ';
+		$.ajax({
+           type: "POST",
+           url: url,
+           data: $("#register").serialize(),
+           success: function(response)
+           {
+			console.log("Registrato");
+           },
+		   error: function(xhr, status, error) {
+			let errorlog = JSON.parse(xhr.responseText);
+			contenuto = '<strong>Errore!</strong> '+ errorlog.errormsg;
+			$("#registerstatus").attr('class', 'alert alert-danger');
+			$("#registerstatus").html(contenuto);
+			}
+         });
+	 } else {
+		contenuto = '<strong>Errore!</strong> Le password devono essere coincidere.';
+		$("#registerstatus").attr('class', 'alert alert-danger');
+		}
+	} else {
+		contenuto = '<strong>Errore!</strong> La password deve rispettare i parametri. ';
+		$("#registerstatus").attr('class', 'alert alert-danger');		
+		}
+	 $("#registerstatus").html(contenuto);
+	 $("#registerstatus").show();
+    e.preventDefault(); // non eseguire l'azione di default del form
+});
+
+$("#login").submit(function(e) {
+
+    var url = "login.php"; 
+	var contenuto = "???";
+	$.ajax({
+        type: "POST",
+        url: url,
+        data: $("#login").serialize(),
+        success: function(response){
+			if(response.has2fa === "no"){
+				$("#qrcode").attr('src', response.qrUrl);
+				$("#commento").html("Questo e' il tuo primo login. Sei pregato di aggiungere al tuo <b>Google Authenticator</b> il QR Code per abilitare l'autenticazione a due fattori.");
+			} else {
+				$("#qrcode").attr('src', 'images/gauth.png');
+				$("#commento").html("Inserisci il codice del tuo <b>Google Authenticator</b>");
+			}
+			$("#myModal").modal();
+        },
+		error: function(xhr, status, error) {
+			let errorlog = JSON.parse(xhr.responseText);
+			contenuto = '<strong>Errore!</strong> '+ errorlog.errormsg;
+			$("#loginstatus").attr('class', 'alert alert-danger');
+			$("#loginstatus").html(contenuto);
+			$("#loginstatus").show();
+		}
+    });
+    e.preventDefault(); // non eseguire l'azione di default del form
+});
+
+$("#2fa").submit(function(e) {
+	let trimmedcode = $('#2facode').val().replace(/\s/g,''); //rimuovi tutti gli spazi bianchi
+	if(trimmedcode.length === 6 ){
+		var url = "checkqr.php";
+		$.ajax({
+			type: "POST",
+			url: url,
+			data: {
+				'2facode' : trimmedcode
+			},
+			success: function(response){
+				if(response['successmsg'] === "QROK"){
+					window.location.replace("home.php");
+				} else {
+					$("#2falabel").show();
+					setTimeout(function() {
+					$('#2falabel').fadeOut();
+					}, 2000); 
+				}
+			},
+			error: function(xhr, status, error) {
+				//let errorlog = JSON.parse(xhr.responseText);
+				console.log(xhr.responseText);
+			}
+		});
+	}
+    e.preventDefault(); // non eseguire l'azione di default del form
+});
+
+$('#psw, #pswcheck').on('keyup', function () {
+  if ($('#psw').val() === $('#pswcheck').val()) {
+    $('#psw').attr("isValid", "valid");
+	//$('#psw').css("border-color", "green");
+	$('#pswcheck').css("border-color", "green");
+  } else{ 
+    $('#psw').attr("isValid", "invalid");
+	//$('#psw').css("border-color", "red");
+	$('#pswcheck').css("border-color", "red");
+	}
+});
+
+var myInput = document.getElementById("psw");
+var letter = document.getElementById("letter");
+var capital = document.getElementById("capital");
+var number = document.getElementById("number");
+var length = document.getElementById("length");
+
+// When the user clicks on the password field, show the message box
+myInput.onfocus = function() {
+  document.getElementById("message").style.display = "block";
+}
+
+// When the user clicks outside of the password field, hide the message box
+myInput.onblur = function() {
+  document.getElementById("message").style.display = "none";
+  //document.getElementById("psw").style.borderColor = "";
+  document.getElementById("pswcheck").style.borderColor = "";
+}
+
+// When the user starts to type something inside the password field
+myInput.onkeyup = function() {
+  // Validate lowercase letters
+  var lowerCaseLetters = /[a-z]/g;
+  if(myInput.value.match(lowerCaseLetters)) { 
+    letter.classList.remove("invalid");
+    letter.classList.add("valid");
+  } else {
+    letter.classList.remove("valid");
+    letter.classList.add("invalid");
+}
+
+  // Validate capital letters
+  var upperCaseLetters = /[A-Z]/g;
+  if(myInput.value.match(upperCaseLetters)) { 
+    capital.classList.remove("invalid");
+    capital.classList.add("valid");
+  } else {
+    capital.classList.remove("valid");
+    capital.classList.add("invalid");
+  }
+
+  // Validate numbers
+  var numbers = /[0-9]/g;
+  if(myInput.value.match(numbers)) { 
+    number.classList.remove("invalid");
+    number.classList.add("valid");
+  } else {
+    number.classList.remove("valid");
+    number.classList.add("invalid");
+  }
+
+  // Validate length
+  if(myInput.value.length >= 8) {
+    length.classList.remove("invalid");
+    length.classList.add("valid");
+  } else {
+    length.classList.remove("valid");
+    length.classList.add("invalid");
+  }
+  
+  if(length.classList.contains("valid") && number.classList.contains("valid") && capital.classList.contains("valid") && letter.classList.contains("valid")){
+  document.getElementById("psw").style.borderColor = "green";
+  //document.getElementById("pswcheck").style.borderColor = "";
+  }
+  
+    if(!(length.classList.contains("valid") && number.classList.contains("valid") && capital.classList.contains("valid") && letter.classList.contains("valid"))){
+  document.getElementById("psw").style.borderColor = "red";
+  //document.getElementById("pswcheck").style.borderColor = "";
+  }
+}
+</script>
+</body>
+</html>
